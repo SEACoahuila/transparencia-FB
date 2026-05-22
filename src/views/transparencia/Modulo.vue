@@ -1,4 +1,5 @@
 <script setup>
+import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import ModalNuevaSeccion from '../../components/modals/ModalNuevaSeccion.vue';
 import DeleteSeccionModal from '../../components/modals/DeleteSeccionModal.vue';
@@ -29,7 +30,7 @@ async function getMod(){
     await departamentos.getAll();
     
 }
-getMod();
+onMounted(getMod);
 
 
 /**
@@ -112,19 +113,20 @@ const updateNota = async() => {
     modulo.message.place = 'nota';
     const note = document.forms['modNota']['nota'].value.trim()
     await modulo.update({nota:note}, modulo.id);
-    // getMod();
-    location.reload()
+    await getMod();
 }
 
 const updateFecha = async() => {
-    await modulo.updateFecha(modulo.id).then(getMod());
+    await modulo.updateFecha(modulo.id);
+    await getMod();
 }
 
 const reorder = async (uid, to, secID) => {
     let nuevo = 0;
     if(to == 0) nuevo = parseInt(uid) + 1;
     else nuevo = parseInt(uid) - 1;
-    await modulo.reorderSection(uid,nuevo,modulo.id, secID).then(() => { getMod() });
+    await modulo.reorderSection(uid,nuevo,modulo.id, secID);
+    await getMod();
 }
 
 </script>
@@ -213,7 +215,7 @@ const reorder = async (uid, to, secID) => {
                             <div>
                                 <label class="my-3">Descripción (Opcional)</label>
                                 <div id="description">
-                                    <div v-for="desc in modulo.descripcion">
+                                    <div v-for="desc in modulo.descripcion" :key="desc.orden">
                                         <a href="#" data-bs-toggle="modal" :data-bs-target="`#descP-${desc.orden}`" class="badge bg-danger rounded-pill float-end"><Icon name='x-lg' /></a>
                                         <textarea 
                                             class="form-control my-2" 
@@ -271,7 +273,7 @@ const reorder = async (uid, to, secID) => {
                 <div class="col" v-else>
                     
                     <div class="list-group shadow mb-5">
-                        <div v-for="seccion, i in modulo.secciones" class="list-group-item d-flex justify-content-between align-items-center">
+                        <div v-for="seccion, i in modulo.secciones" :key="seccion.id" class="list-group-item d-flex justify-content-between align-items-center">
                             <router-link :to="`/transparencia/${modulo.id}/${seccion.id}`" style="text-decoration:none; color:black" class="col-11">
                                 {{ seccion.subtitulo }}
                             </router-link>

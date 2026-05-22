@@ -20,6 +20,7 @@ export const useModuloStore = defineStore('SingleModulo',{
         encargadoID:null,
         cargo:null,
         id:null,
+        enlace:'',
         nota:'',
         descripcion:[],
         secciones:[],
@@ -31,50 +32,58 @@ export const useModuloStore = defineStore('SingleModulo',{
         async get(id){
             try{
                 this.loading = true;
-                await getDoc(doc(db,'modulos',id)).then( async (mod) => { 
-                    this.data = mod.data();
-                    if(mod.data().articulo == 'CPC'){
-                        this.enlace = 'https://cpccoahuila.org.mx/transparencia/'+mod.data().articulo+'-'+mod.data().fraccion;
-                    }else{
-                        this.enlace = 'https://seacoahuila.org.mx/transparencia/'+mod.data().articulo+'-'+mod.data().fraccion;
-                    }
-                    this.id = mod.id;
-                    this.descripcion = mod.data().descripcion;
-                    this.nota = mod.data().nota;
-                    const dptID = mod.data().encargado;
-                    
-                    this.canEdit = []
-                    if(mod.data().canEdit != undefined){ this.canEdit = mod.data().canEdit; }
-                    
-                    this.secciones = [];
-                    await getDocs(
-                        query(
-                            collection(db, 'modulos/'+id+'/secciones'),
-                            orderBy('uid','asc')
-                        )
-                    ).then((secs) => {
-                        secs.docs.forEach((sec) => {
-                            this.secciones.push({ id:sec.id, ...sec.data() });
-                        })
+                const mod = await getDoc(doc(db,'modulos',id));
+
+                if(!mod.exists()){
+                    this.setError('No se encontró el módulo con id: '+id);
+                    return;
+                }
+
+                const modData = mod.data();
+                this.data = modData;
+
+                if(modData.articulo == 'CPC'){
+                    this.enlace = 'https://cpccoahuila.org.mx/transparencia/'+modData.articulo+'-'+modData.fraccion;
+                }else{
+                    this.enlace = 'https://seacoahuila.org.mx/transparencia/'+modData.articulo+'-'+modData.fraccion;
+                }
+
+                this.id = mod.id;
+                this.descripcion = modData.descripcion || [];
+                this.nota = modData.nota || '';
+                const dptID = modData.encargado;
+                
+                this.canEdit = Array.isArray(modData.canEdit) ? modData.canEdit : [];
+                
+                this.secciones = [];
+                await getDocs(
+                    query(
+                        collection(db, 'modulos/'+id+'/secciones'),
+                        orderBy('uid','asc')
+                    )
+                ).then((secs) => {
+                    secs.docs.forEach((sec) => {
+                        this.secciones.push({ id:sec.id, ...sec.data() });
                     })
-                    const dpto = await getDoc(doc(db,'departamentos',dptID));
+                })
 
-                    if(dpto.exists){
+                const dpto = await getDoc(doc(db,'departamentos',dptID));
 
-                        const titular = await getDoc(doc(db,'usuarios',dpto.data().titular));
-                        if(titular.exists){
-                            this.encargado = titular.data().nombre;
-                            this.encargadoID = titular.data().uid;
-                            this.cargo = titular.data().cargo + " de " + dpto.data().nombre
-                        }else{
-                            this.setError('No se encontró al usuario con id: '+dpto.data().titular)
-                        }
+                if(dpto.exists){
 
+                    const titular = await getDoc(doc(db,'usuarios',dpto.data().titular));
+                    if(titular.exists){
+                        this.encargado = titular.data().nombre;
+                        this.encargadoID = titular.data().uid;
+                        this.cargo = titular.data().cargo + " de " + dpto.data().nombre
                     }else{
-                        this.setError('No se encontró el departamento con el id: '+dptID);
+                        this.setError('No se encontró al usuario con id: '+dpto.data().titular)
                     }
 
-                }).catch((e) => { this.setError(e.message); })
+                }else{
+                    this.setError('No se encontró el departamento con el id: '+dptID);
+                }
+
             }catch(e) { this.setError(e.message) }
             finally{ this.loading=false; }
         },
@@ -86,9 +95,9 @@ export const useModuloStore = defineStore('SingleModulo',{
                 
                 if(! await this.modExists(data.articulo,data.fraccion)){
                     const nid = await this.getLastModID();
-                    await addDoc(collection(db,'modulos'),{ uid: nid, ...datos }).then(
-                        this.setSuccess('Creado correctamente')).catch((e) => { this.setError(e.message) })
-                        setTimeout(location.reload(),2000);
+                    await addDoc(collection(db,'modulos'),{ uid: nid, ...datos });
+                    this.setSuccess('Creado correctamente');
+                    setTimeout(() => { location.reload(); }, 2000);
                 }else{
                     this.setError('Ya existe el modulo '+data.fraccion+' del articulo '+data.articulo);
                 }

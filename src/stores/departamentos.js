@@ -18,41 +18,61 @@ export const useDepartamentosStore = defineStore('DepartamentosStore',{
     actions:{
 
         async getAll(){
-            try {
-                this.loading = true;
-                this.all = [];
-                await getDocs(query(collection(db, 'departamentos'))).then((result) => {
-                    result.docs.forEach(async(dpt) => {
-                        
-                        if(dpt.data().titular != ""){
+    try {
+        this.loading = true;
+        this.all = [];
 
-                            await getDoc(doc(db,'usuarios',dpt.data().titular)).then((titular) => {
-    
-                                this.all.push({ 
-                                    id: dpt.id, nombre:dpt.data().nombre, 
-                                    titular:{ 
-                                        id:titular.id,
-                                        nombre:titular.data().nombre, 
-                                        cargo:titular.data().cargo 
-                                    } 
-                                }); 
-                            })
-                        }else{
-                            this.all.push({ 
-                                id: dpt.id, nombre:dpt.data().nombre, 
-                                titular:{ nombre:'SIN ASIGNAR', cargo:'' } 
-                            });
+        const result = await getDocs(
+            query(collection(db, 'departamentos'))
+        );
+
+        for (const dpt of result.docs) {
+
+            if (dpt.data().titular !== "") {
+
+                const titular = await getDoc(
+                    doc(db, 'usuarios', dpt.data().titular)
+                );
+
+                if (titular.exists()) {
+
+                    this.all.push({
+                        id: dpt.id,
+                        nombre: dpt.data().nombre,
+                        titular: {
+                            id: titular.id,
+                            nombre: titular.data().nombre,
+                            cargo: titular.data().cargo
                         }
                     });
-                }).catch((e) => {
-                    console.log(e);
-                    this.setError(e.message)
+
+                }
+
+            } else {
+
+                this.all.push({
+                    id: dpt.id,
+                    nombre: dpt.data().nombre,
+                    titular: {
+                        nombre: 'SIN ASIGNAR',
+                        cargo: ''
+                    }
                 });
-            } catch (e) {
-                console.log(e);
-                this.setError(e.message);
-            } finally { this.loading = false; }
-        },
+
+            }
+        }
+
+    } catch (e) {
+
+        console.log(e);
+        this.setError(e.message);
+
+    } finally {
+
+        this.loading = false;
+
+    }
+},
 
         async get(id){
             try {

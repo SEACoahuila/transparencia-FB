@@ -19,7 +19,10 @@ export const useModulosStore = defineStore('pluralModulos',{
         art21:[],
         art22:[],
         art25:[],
+        art40:[],
+        art43:[],
         art70:[],
+        art72:[],
         artLGCG:[],
         artCPC:[],
         articulos:[],
@@ -38,7 +41,10 @@ export const useModulosStore = defineStore('pluralModulos',{
                 this.art21 = [];
                 this.art22 = [];
                 this.art25 = [];
+                this.art40 = [];
+                this.art43 = [];
                 this.art70 = [];
+                this.art72 = [];
                 this.artLGCG = [];
                 this.artCPC = [];
                 this.monitoreo = [];
@@ -76,14 +82,19 @@ export const useModulosStore = defineStore('pluralModulos',{
                         
                         modulos.docs.forEach((m) => {
 
-                            if(m.data().canEdit.includes(auth.currentUser.uid) || rol == "admin" || dpts.includes(m.data().encargado)){
+                            const canEdit = m.data().canEdit || [];
+
+                            if(canEdit.includes(auth.currentUser.uid) || rol == "admin" || dpts.includes(m.data().encargado)){
                                 this.listado.push({ id:m.id, ...m.data() });
                                 switch(m.data().articulo){
                                     case "20": this.art20.push({ id:m.id, ...m.data() }); break;
                                     case "21": this.art21.push({ id:m.id, ...m.data() }); break;
                                     case "22": this.art22.push({ id:m.id, ...m.data() }); break;
                                     case "25": this.art25.push({ id:m.id, ...m.data() }); break;
+                                    case "40": this.art40.push({ id:m.id, ...m.data() }); break;
+                                    case "43": this.art43.push({ id:m.id, ...m.data() }); break;
                                     case "70": this.art70.push({ id:m.id, ...m.data() }); break;
+                                    case "72": this.art72.push({ id:m.id, ...m.data() }); break;
                                     case "LGCG": this.artLGCG.push({ id:m.id, ...m.data() }); break;
                                     case "CPC": this.artCPC.push({ id:m.id, ...m.data() }); break;
                                     case "monitoreo-legislativo": this.monitoreo.push({ id:m.id, ...m.data() }); break;

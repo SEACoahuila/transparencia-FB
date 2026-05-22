@@ -92,9 +92,47 @@ const bread = [
                     </div>
                 </div>
     
+                <div class="row mb-2" v-if="modulos.art40.length > 0">
+                    <div class="col" >
+                        <h3>Artículo 40</h3>
+                        <div class="list-group shadow-sm mb-4 mt-3">
+                            <div class="list-group-item cursorHand" v-for="mod in modulos.art40" :onclick="`javascript:location.href='/transparencia/${mod.id}'`">
+                                {{ mod.fraccion }} - {{ mod.titulo }}
+                            </div>
+                        </div>
+                        <hr class="my-2">
+                    </div>
+                </div>
+
+                <div class="row mb-2" v-if="modulos.art43.length > 0">
+                    <div class="col" >
+                        <h3>Artículo 43</h3>
+                        <div class="list-group shadow-sm mb-4 mt-3">
+                            <div class="list-group-item cursorHand" v-for="mod in modulos.art43" :onclick="`javascript:location.href='/transparencia/${mod.id}'`">
+                                {{ mod.fraccion }} - {{ mod.titulo }}
+                            </div>
+                        </div>
+                        <hr class="my-2">
+                    </div>
+                </div>
+
+    
                 <div class="row mb-2" v-if="modulos.art70.length > 0">
                     <div class="col" >
                         <h3>Artículo 70</h3>
+                        <div class="list-group shadow-sm mb-4 mt-3">
+                            <div class="list-group-item cursorHand" v-for="mod in modulos.art70" :onclick="`javascript:location.href='/transparencia/${mod.id}'`">
+                                {{ mod.fraccion }} - {{ mod.titulo }}
+                            </div>
+                        </div>
+                        <hr class="my-2">
+                    </div>
+                </div>
+
+                
+                <div class="row mb-2" v-if="modulos.art72.length > 0">
+                    <div class="col" >
+                        <h3>Artículo 72</h3>
                         <div class="list-group shadow-sm mb-4 mt-3">
                             <div class="list-group-item cursorHand" v-for="mod in modulos.art70" :onclick="`javascript:location.href='/transparencia/${mod.id}'`">
                                 {{ mod.fraccion }} - {{ mod.titulo }}
