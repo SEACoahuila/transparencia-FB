@@ -134,7 +134,7 @@ const bread = [
                     <div class="col" >
                         <h3>Artículo 72</h3>
                         <div class="list-group shadow-sm mb-4 mt-3">
-                            <div class="list-group-item cursorHand" v-for="mod in modulos.art70" :onclick="`javascript:location.href='/transparencia/${mod.id}'`">
+                            <div class="list-group-item cursorHand" v-for="mod in modulos.art72" :onclick="`javascript:location.href='/transparencia/${mod.id}'`">
                                 {{ mod.fraccion }} - {{ mod.titulo }}
                             </div>
                         </div>
